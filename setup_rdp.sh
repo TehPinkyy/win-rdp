@@ -1,4 +1,5 @@
 #!/bin/sh
+#written by lutz schuelein
 
 #define stuff
 RDP_USER=$1
@@ -33,6 +34,7 @@ echo "creating backup of /etc/init/tty$TTY.conf as /etc/init/tty$TTY.conf.backup
 cp /etc/init/tty$TTY.conf /etc/init/tty$TTY.conf.backup
 sed '$d' /etc/init/tty$TTY.conf > /etc/init/tty$TTY.conf
 echo "exec /sbin/mingetty --autologin $RDP_USER --noclear tty$TTY" >> /etc/init/tty$TTY.conf
+echo "autologin configured."
 
 #change tty on boot
 if ! [ -e /etc/rc.local ]; then echo "/etc/rc.local not found."; exit 1; fi
@@ -46,7 +48,14 @@ if ! [ -x "$(command -v chvt)" ]
 		echo "chvt installed successfully"
 fi
 echo "chvt $TTY" >> /etc/rc.local
+echo "change tty on boot configured."
 
 #startx on TTY
+echo "if [ $(tty) == "/dev/tty$TTY" ]; then startx -- -nocursor -depth 16; fi" >> /home/$RDP_USER/.bashrc
+
+#setup x
+cp .xsession /home/$RDP_USER/
+
+echo "setup done."
 
 exit 0
