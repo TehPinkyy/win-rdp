@@ -27,4 +27,26 @@ if ! [ -x "$(command -v mingetty)" ]
 		echo "mingetty installed successfully"
 fi
 
+#autologin
+if ! [ -f /etc/init/tty$TTY.conf ]; then echo "/etc/init/tty$TTY.conf not found. Something is Wrong with the system."; exit 1; fi
+echo "creating backup of /etc/init/tty$TTY.conf as /etc/init/tty$TTY.conf.backup \nif something breaks u know where to look."
+cp /etc/init/tty$TTY.conf /etc/init/tty$TTY.conf.backup
+sed '$d' /etc/init/tty$TTY.conf > /etc/init/tty$TTY.conf
+echo "exec /sbin/mingetty --autologin $RDP_USER --noclear tty$TTY" >> /etc/init/tty$TTY.conf
+
+#change tty on boot
+if ! [ -e /etc/rc.local ]; then echo "/etc/rc.local not found."; exit 1; fi
+
+if ! [ -x "$(command -v chvt)" ]
+	then echo "chvt allready installed\nskipping..."
+	else
+		echo "Installing chvt"
+		apt-get -qq -y install chvt
+		if ! [ $? -eq 0 ]; then echo "Something went terribly wrong whilst installing chvt"; exit 1; fi
+		echo "chvt installed successfully"
+fi
+echo "chvt $TTY" >> /etc/rc.local
+
+#startx on TTY
+
 exit 0
