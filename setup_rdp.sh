@@ -17,4 +17,14 @@ if [ $? -eq 0 ]
 		echo "User: $RDP_USER added successfully"
 fi
 
+#mingetty
+if ! [ -x "$(command -v mingetty)" ]
+	then echo "mingetty allready installed\nskipping..."
+	else
+		echo "Installing mingetty"
+		apt-get -qq -y install mingetty
+		if ! [ $? -eq 0 ]; then echo "Something went terribly wrong whilst installing mingetty"; exit 1; fi
+		echo "mingetty installed successfully"
+fi
+
 exit 0
