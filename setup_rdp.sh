@@ -1,8 +1,12 @@
 #!/bin/sh
 #written by lutz schuelein
 
+#check for root privileges
+if [ "$(whoami)" != "root" ]; then echo "execution denied. no root privileges."; exit 1; fi
+
 #define stuff
-RDP_USER=$1
+if ! [ -z $1 ]; then RDP_USER=$1; else echo "no user given. exiting."; exit 1; fi
+#RDP_USER=win-rdp
 RDP_USER_PASS=asdf
 TTY=3
 
@@ -10,16 +14,16 @@ TTY=3
 #handle user stuff
 id -u $RDP_USER >/dev/null 2>&1
 if [ $? -eq 0 ]
-	then echo "The User <$RDP_USER> allready exists.\nskipping..."
-	else 
-		echo "User: $RDP_USER does not exist, further action required"
-		adduser -m -p $RDP_USER_PASS -s /bin/bash $RDP_USER
-		if [ $? -eq 1 ]; then echo "Something went terribly wront whilst setting up the new user!"; exit 1; fi 
-		echo "User: $RDP_USER added successfully"
+        then echo "The User $RDP_USER allready exists.\nskipping..."
+        else 
+                echo "User: $RDP_USER does not exist, further action required"
+                useradd -m -p $RDP_USER_PASS -s /bin/bash $RDP_USER
+                ! [ $? -eq 0 ] && echo "Something went terribly wront whilst setting up the new user!" && exit 1 
+                echo "User: $RDP_USER added successfully"
 fi
 
 #mingetty
-if ! [ -x "$(command -v mingetty)" ]
+if [ -x "$(command -v mingetty)" ]
 	then echo "mingetty allready installed\nskipping..."
 	else
 		echo "Installing mingetty"
@@ -39,7 +43,7 @@ echo "autologin configured."
 #change tty on boot
 if ! [ -e /etc/rc.local ]; then echo "/etc/rc.local not found."; exit 1; fi
 
-if ! [ -x "$(command -v chvt)" ]
+if [ -x "$(command -v chvt)" ]
 	then echo "chvt allready installed\nskipping..."
 	else
 		echo "Installing chvt"
