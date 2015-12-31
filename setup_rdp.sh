@@ -27,7 +27,7 @@ if [ -x "$(command -v mingetty)" ]
 	then echo "mingetty allready installed\nskipping..."
 	else
 		echo "Installing mingetty"
-		apt-get -qq -y install mingetty
+		apt-get -y install mingetty
 		if ! [ $? -eq 0 ]; then echo "Something went terribly wrong whilst installing mingetty"; exit 1; fi
 		echo "mingetty installed successfully"
 fi
@@ -47,10 +47,11 @@ if [ -x "$(command -v chvt)" ]
 	then echo "chvt allready installed\nskipping..."
 	else
 		echo "Installing chvt"
-		apt-get -qq -y install chvt
+		apt-get -y install chvt
 		if ! [ $? -eq 0 ]; then echo "Something went terribly wrong whilst installing chvt"; exit 1; fi
 		echo "chvt installed successfully"
 fi
+
 echo "chvt $TTY" >> /etc/rc.local
 echo "change tty on boot configured."
 
