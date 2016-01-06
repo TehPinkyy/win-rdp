@@ -8,7 +8,7 @@ if [ "$(whoami)" != "root" ]; then echo "[fail] execution denied. no root privil
 if ! [ -z $1 ]; then RDP_USER=$1; else echo "[fail] no user given. exiting."; exit 1; fi
 #RDP_USER=win-rdp
 RDP_USER_PASS=asdf
-TTY=3
+TTY=1
 
 
 #handle user stuff
@@ -39,8 +39,8 @@ if [ -f ./setup.log ]
 		if ! [ -f /etc/init/tty$TTY.conf ]; then echo "[fail] /etc/init/tty$TTY.conf not found."; exit 1; fi
 		echo "creating backup of /etc/init/tty$TTY.conf as /etc/init/tty$TTY.conf.backup \nif something breaks u know where to look."
 		cp /etc/init/tty$TTY.conf /etc/init/tty$TTY.conf.backup
-		sed '$d' /etc/init/tty$TTY.conf > /etc/init/tty$TTY.conf
-		echo "exec /sbin/mingetty --autologin $RDP_USER --noclear tty$TTY" >> /etc/init/tty$TTY.conf
+		sed -i '$ d' /etc/init/tty$TTY.conf
+		echo "exec /sbin/mingetty --autologin $RDP_USER --noclear tty$TTY" | tee -a /etc/init/tty$TTY.conf
 fi
 echo "[ok] autologin configured."
 
@@ -59,7 +59,7 @@ fi
 if [ -f ./setup.log ]
 	then echo "[pass] change tty on boot is allready set up.\nskipping..."
 	else
-		echo "chvt $TTY" >> /etc/rc.local
+		echo "chvt $TTY" | tee -a /etc/rc.local
 		echo "[ok] change tty on boot configured."
 fi
 
@@ -68,7 +68,7 @@ if [ -f ./setup.log ]
 	then echo "[pass] startx on tty$TTY is allready set up.\nskipping..."
 	else
 		if ! [ -e /home/$RDP_USER/.bashrc ]; then echo "[fail] /home/$RDP_USER/.bashrc not found."; exit 1; fi
-		echo "if [ $(tty) == "/dev/tty$TTY" ]; then startx -- -nocursor -depth 16; fi" >> /home/$RDP_USER/.bashrc
+		echo "if [ \$(tty) == "/dev/tty$TTY" ]; then startx -- -nocursor -depth 16; fi" | tee -a /home/$RDP_USER/.bashrc
 		echo "[ok] startx on tty$TTY configured."
 fi
 
